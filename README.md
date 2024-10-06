@@ -2,7 +2,7 @@
 
 ## What's this?
 
-Formulae I've written for software I've found useful, that isn't yet in Homebrew.
+Formulae I've written for software I've found useful, that isn't yet in Homebrew. Or things that are in Homebrew but built with options I don't like.
 
 Feel free to use these. I'll try to keep them up to date, but I'm not making any promises. This is primarily for my own use. If formulae here get accepted to the official Homebrew repo I'll delete them here.
 
