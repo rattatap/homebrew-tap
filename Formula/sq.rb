@@ -1,8 +1,8 @@
 class Sq < Formula
   desc "Sequoia-PGP command-line tool"
   homepage "https://sequoia-pgp.org"
-  url "https://gitlab.com/sequoia-pgp/sequoia-sq/-/archive/v0.37.0/sequoia-sq-v0.37.0.tar.gz"
-  sha256 "5c12733969f55ff0bb250c681552ebbc2e34e202c5401033ef73cab040022a2e"
+  url "https://gitlab.com/sequoia-pgp/sequoia-sq/-/archive/v0.38.0/sequoia-sq-v0.38.0.tar.gz"
+  sha256 "9fd32ad0de3388804e21205003821710d2faf99d5c85a50bd97da3e7e480921b"
   license "GPL-2.0-or-later"
 
   depends_on "capnp" => :build
