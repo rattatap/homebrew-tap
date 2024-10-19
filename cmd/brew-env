@@ -1,0 +1,5 @@
+#!/bin/bash
+# alias: brew env
+#:  * `env` [args...]
+#:    Execute `env` in `brew` environment. See env(1).
+env $*

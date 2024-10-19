@@ -1,0 +1,85 @@
+#!/bin/dash
+# brew extension for editing Brewfile
+#:  * `file` [-g|-l] [-p]
+#:
+#:  Edit Brewfile. Choose global or local Brewfile with [-g|-l]. Otherwise,
+#:  defualts to local Brewfile if it exists, global Brewfile if it exists, and
+#:  finally default to local Brewfile whether it exists or not.
+#:
+#:  Options:
+#:
+#:       -g      Use `global` Brewfile. Defaults to
+#:               `~/.Brewfile`. Override with `HOMEBREW_BUNDLE_FILE_GLOBAL`.
+#:
+#:       -l      Use `local` Brewfile. Defaults to
+#:               `./Brewfile`. Override with `HOMEBREW_BUNDLE_FILE`.
+#:
+#:       -p      `Print` the file path to be edited, without
+#:               opening an editor.
+#:
+#:  Envirionment:
+#:
+#:       HOMEBREW_BUNDLE_FILE - override path to `local` Brewfile
+#:
+#:       HOMEBREW_BUNDLE_FILE_GLOBAL - override path to `global` Brewfile
+#:
+#:       HOMEBREW_EDITOR - set editor
+#:
+#:       EDITOR - fallback editor if HOMEBREW_EDITOR is unset
+#:
+local_brewfile=${HOMEBREW_BUNDLE_FILE:-Brewfile}
+global_brewfile=${HOMEBREW_BUNDLE_FILE_GLOBAL:-${HOME}/.Brewfile}
+print_only=
+editor=${HOMEBREW_EDITOR:-${EDITOR}}
+
+use_local () {
+  brewfile=$local_brewfile
+  brewfile_type="Local"
+}
+
+use_global () {
+  brewfile=$global_brewfile
+  brewfile_type="Global"
+}
+
+expand_tilde () {
+  echo "$1" | sed "s|^~/|$HOME/|"
+}
+
+# replace leading '~/' so we don't have to eval
+local_brewfile=$(expand_tilde $local_brewfile)
+global_brewfile=$(expand_tilde $global_brewfile)
+
+while getopts "glp" flag; do
+  case $flag in
+    g) use_global ;;
+    l) use_local ;;
+    p) print_only=1 ;;
+    *) brew file -h; exit 2
+  esac
+done
+
+# If not set explicitly w/ flags, prefer local Brewfile over global
+# Brewfile, but prefer file that exists over one that does not exist.
+if [ -z "$brewfile" ]; then
+  if [ -f "$local_brewfile" ]; then
+    use_local
+  elif [ -f "$global_brewfile" ]; then
+    use_global
+  else
+    use_local
+  fi
+fi
+
+if [ -n "$print_only" ]; then
+  echo "$brewfile"
+  exit 0
+fi
+
+echo Editing "$brewfile_type" Brewfile: "$brewfile" 
+if [ -n "$editor" ]; then
+  ${editor} ${brewfile}
+else
+  echo 'must set EDITOR or HOMEBREW_EDITOR'
+  exit 1
+fi
