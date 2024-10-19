@@ -1,17 +1,13 @@
 class FwknopClient < Formula
-  desc "build fwknop client without gpg support"
-  homepage "https://www.cipherdyne.org/fwknop/"
-  url "https://www.cipherdyne.org/fwknop/download/fwknop-2.6.11.tar.gz"
-  mirror "https://github.com/mrash/fwknop/releases/download/2.6.11/fwknop-2.6.11.tar.gz"
-  sha256 "bcb4e0e2eb5fcece5083d506da8471f68e33fb6b17d9379c71427a95f9ca1ec8"
-  license "GPL-2.0-or-later"
+  formula = Homebrew::API::Formula.all_formulae.find{|x| x[0] == "fwknop"}[1]
+  desc "fwknop formula, patched to remove gpg dependencies and server binary"
+  homepage formula["homepage"]
+  url formula["urls"]["stable"]["url"]
+  sha256 formula["urls"]["stable"]["checksum"]
+  license formula["urls"]["stable"]["license"]
   head "https://github.com/mrash/fwknop.git", branch: "master"
 
   uses_from_macos "libpcap"
-
-  on_linux do
-    depends_on "iptables"
-  end
 
   def install
     args = %W[
@@ -19,7 +15,6 @@ class FwknopClient < Formula
       --sysconfdir=#{etc}
       --disable-server
     ]
-    args << "--with-iptables=#{Formula["iptables"].opt_prefix}" unless OS.mac?
     system "./configure", *std_configure_args, *args
     system "make", "install"
   end
