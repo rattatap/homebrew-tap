@@ -51,6 +51,9 @@ Unless otherwise noted these are formulae that I'm working on submitting to home
 
 - `sequoia-sq`: Sequoia-PGP command-line tool. Alternative to GnuPG. Please star its [GitLab repo](https://gitlab.com/sequoia-pgp/sequoia-sq) if you'd like to see it in homebrew/core.
 
+### Etc
+- `fake-python`: See [Fake Python README](Fake_Python_README.md)
+
 ### How do I install these formulae?
 
 `brew install rattatap/tap/<formula>`
