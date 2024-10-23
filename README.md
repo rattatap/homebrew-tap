@@ -45,11 +45,9 @@ I was unhappy with how the official Homebrew versions of these packages worked. 
 - `op`: Patched version of [homebrew/cask/1password-cli](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/1/1password-cli.rb). Adds shell completion.
 
 ### New Formulae
-Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-core/) yet. I'm usually pretty quick to get new versions here when they are released, but if you are using one of these formulae and find it out of date PRs are welcome.
+Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-core/) yet. I'm usually pretty quick to get new versions here when they are released, but if you are using one of these formulae and find it out of date PRs are welcome. I will remove formulae here if/when they are upstreamed to homebrew/core.
 
-Unless otherwise noted these are formulae that I'm working on submitting to homebrew/core. I will remove formulae here if/when they are upstreamed.
-
-- `sequoia-sq`: Sequoia-PGP command-line tool. Alternative to GnuPG. Please star its [GitLab repo](https://gitlab.com/sequoia-pgp/sequoia-sq) if you'd like to see it in homebrew/core.
+_None currently_
 
 ### Etc
 - `fake-python`: See [Fake Python README](Fake_Python_README.md)
