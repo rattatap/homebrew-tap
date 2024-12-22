@@ -49,9 +49,6 @@ Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-cor
 
 _None currently_
 
-### Etc
-- `fake-python`: See [Fake Python README](Fake_Python_README.md)
-
 ### How do I install these formulae?
 
 `brew install rattatap/tap/<formula>`
