@@ -1,6 +1,6 @@
 # Rattatap-Tap: Useful Formulae and `brew` Commands
 
-If you find anything here useful, your stars are appreciated.
+If you find anything here useful, a ⭐ is appreciated!
 
 ## Installation
 
