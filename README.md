@@ -17,10 +17,6 @@ Examples:
 * `brew env` prints brew's environment
 * `brew env foobar` execute command `foobar` with brew's environment.
 
-### `brew file`
-
-Open Brewfile for editing. Opens global Brewfile if there is no local/project Brewfile in current directory. See `brew file -h` for further usage info.
-
 ### `brew taps`
 
 Print a table summarizing installed taps, including information on the current git status.
@@ -42,7 +38,6 @@ rattatap/tap     164K    3    0   2 (wip)
 I was unhappy with how the official Homebrew versions of these packages worked. These formulae are hacks that load their data from official formulae or casks and then customize some element of the build or installation. Because the soruce links come from the official formulae they will always install current versions, but they could concievably break if there are major changes to how these packages are installed.
 
 - `fwknop-client`: Patched version of [homebrew/core/fwknop](https://github.com/Homebrew/homebrew-core/blob/master/Formula/f/fwknop.rb). Removes gpg dependencies, server binary.
-- `op`: Patched version of [homebrew/cask/1password-cli](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/1/1password-cli.rb). Adds shell completion.
 
 ### New Formulae
 Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-core/) yet. I'm usually pretty quick to get new versions here when they are released, but if you are using one of these formulae and find it out of date PRs are welcome. I will remove formulae here if/when they are upstreamed to homebrew/core.
