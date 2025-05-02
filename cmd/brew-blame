@@ -1,0 +1,40 @@
+#!/usr/bin/env -S zsh --no-rcs
+#:  * `blame` [-g|--github] *formula*
+#:
+#:Run `git blame` on a formula
+#:
+#:    -g, --github                     Open formula on github
+#:    -v, --verbose                    Print command to be run
+
+zparseopts -D -E -F -- \
+  {g,-github}=github \
+  {q,-quiet}=quiet \
+  {v,-verbose}=verbose || return 2
+
+(( $# == 1 )) || {
+  print "Error: exactly one formula required" >&2
+  return 2
+}
+
+formula=$(brew formula $1)
+[[ -z $formula ]] && {
+  print "Error: No available formula with the name \"$1\"" >&2
+  return 2
+}
+
+toks=(${(s./.)${formula#*/Taps/}})
+gitdir="$HOMEBREW_LIBRARY/Taps/${(j./.)toks[1,2]}"
+gitpath=${(j./.)toks[3,-1]}
+
+if [[ -z $github ]]; then
+  [[ -z $quiet ]] && print "Blaming ${formula}..."
+  cmd=(git --no-pager -C $gitdir blame $gitpath)
+else
+  [[ -z $quiet ]] && print "Opening ${gitpath} in browser..."
+  remote=$(git -C $gitdir config remote.origin.url)
+  main=${$(git -C $gitdir symbolic-ref refs/remotes/origin/HEAD --short)#*/}
+  cmd=($commands[open] $remote/blob/HEAD/$gitpath)
+fi
+
+[[ -n $verbose ]] && print $cmd
+$cmd

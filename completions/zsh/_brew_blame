@@ -1,0 +1,7 @@
+#autoload
+
+_arguments -s \
+  '(-g --github)'{-g,--github}'[open formula in browser]' \
+  '(-v --verbose)'{-v,--verbose}'[verbose]' \
+  '(-h --help)'{-h,--help}'[print command usage]' \
+  ':formula:__brew_formulae'
