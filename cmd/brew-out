@@ -1,5 +1,5 @@
-#!/bin/bash
-# alias: brew out
+#!/bin/sh
 #:  * `out` [args...]
-#:    `brew out` is an alias for `brew outdated`
+#:
+#:Alias for `brew outdated`
 brew outdated $*

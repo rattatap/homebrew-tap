@@ -1,5 +1,5 @@
-#!/bin/bash
-# alias: brew tree
-#:  * `tree` [args...]
-#:    `brew tree` is an alias for `brew deps --tree --installed`
+#!/bin/sh
+#:  * `tree` [*formula* ...]
+#:
+#:Alias for `brew deps --tree --installed`
 brew deps --tree --installed $*

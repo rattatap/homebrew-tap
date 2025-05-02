@@ -1,5 +1,5 @@
-#!/bin/bash
-# alias: brew show
+#!/bin/sh
 #:  * `show` [args...]
-#:    `brew show` is an alias for `brew info`
+#:
+#:Alias for `brew info`
 brew info $*

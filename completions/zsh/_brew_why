@@ -1,3 +1,3 @@
 #autoload
 
-_arguments '*:formula:__brew_formulae'
+_arguments '*:installed_formula:__brew_installed_formulae'

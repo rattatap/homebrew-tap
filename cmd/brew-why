@@ -1,5 +1,5 @@
-#!/bin/bash
-# alias: brew why
-#:  * `why` formula [...]
-#:    `brew why` is an alias for `brew uses --installed --recursive`
+#!/bin/sh
+#:  * `why` [*formula* ...]
+#:
+#:Alias for `brew uses --installed --recursive`
 brew uses --installed --recursive $*

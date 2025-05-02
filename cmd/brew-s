@@ -1,5 +1,5 @@
-#!/bin/bash
-# alias: brew s
+#!/bin/sh
 #:  * `s` [args...]
-#:    `brew s` is an alias for `brew search`
+#:
+#:Alias for `brew search`
 brew search $*
