@@ -33,7 +33,7 @@ else
   [[ -z $quiet ]] && print "Opening ${gitpath} in browser..."
   remote=$(git -C $gitdir config remote.origin.url)
   main=${$(git -C $gitdir symbolic-ref refs/remotes/origin/HEAD --short)#*/}
-  cmd=($commands[open] $remote/blob/HEAD/$gitpath)
+  cmd=($commands[open] $remote/blame/HEAD/$gitpath)
 fi
 
 [[ -n $verbose ]] && print $cmd
