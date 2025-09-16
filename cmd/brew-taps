@@ -1,0 +1,123 @@
+#!/usr/bin/env -S zsh --no-rcs
+#:  * `taps`
+#:
+#:Print table of installed taps and tap details.
+#:  
+#:  Tap details:
+#:    Tap: cannonical name of tap
+#:    Size: output of du -sh for tap path
+#:    🍺: Number of formulae available from tap
+#:    🍷: Number of casks available from tap
+#:    Cmd: Number of commands available from tap
+#:  
+#:  Extra data: symbols after final column indicate...
+#:    * - tap has uncommitted changes
+#:    ! - tap is not a git repo, or has no remote/origin
+#:    (foo) - tap is currently on branch "foo"
+
+countfiles () {
+  local dir=$1
+  [[ -e $dir ]] && cnt=$(find $dir -type f | wc -l | awk '{ print $1 }') || cnt='-'
+  print -- $cnt
+}
+
+sizedir () {
+  local dir=$1
+  du -sh $dir 2>/dev/null | awk '{ print $1 }'
+}
+
+upstream_branch () {
+  local dir=$1
+  local upstream_branch=$(< $dir/.git/refs/remotes/origin/HEAD) 2>/dev/null
+  upstream_branch=${upstream_branch##*/}
+  [[ -z $upstream_branch ]] && upstream_branch="main"
+  print -- $upstream_branch
+}
+
+branch () {
+  local dir=$1
+  local branch=$(< ${dir}/.git/HEAD) 2>/dev/null
+  print -- ${branch##*/}
+}
+
+dirty () {
+  local dir=$1
+  if [[ -e $dir/.git ]]; then
+    local gitstatus=$(git -C ${dir} --no-optional-locks status --porcelain --no-renames 2>&1)
+    [[ -n "${=gitstatus}" ]] && print "*"
+  fi
+}
+
+gitremote () {
+  local dir=$1
+  git -C $dir config remote.origin.url 2>&/dev/null
+}
+
+tap_status () {
+  local gitdir=$1
+
+  local brews_fd casks_fd cmnds_fd dsize_fd gmain_fd brnch_fd dirty_fd
+  local brews casks cmnds dsize main branch dirty
+
+  {
+    exec {brews_fd} < <(countfiles $gitdir/Formula)
+    exec {casks_fd} < <(countfiles $gitdir/Casks)
+    exec {cmnds_fd} < <(countfiles $gitdir/cmd)
+    exec {dsize_fd} < <(sizedir $gitdir)
+    exec {gmain_fd} < <(upstream_branch $gitdir)
+    exec {brnch_fd} < <(branch $gitdir)
+    exec {dirty_fd} < <(dirty $gitdir)
+    exec {rmote_fd} < <(gitremote $gitdir)
+
+    tap=${${x#$HOMEBREW_TAPS/}/\/homebrew-/\/}
+
+    read -u $brews_fd brews
+    read -u $casks_fd casks
+    read -u $cmnds_fd cmnds
+    read -u $dsize_fd dsize
+    read -u $gmain_fd main
+    read -u $brnch_fd branch
+    read -u $dirty_fd dirty
+    read -u $rmote_fd gitremote
+
+    gitstatus=${dirty:+ $dirty}
+    [[ $main != $branch ]] && gitstatus+=" ($branch)"
+
+    local pad=$(( name_width - ${#tap} + 1 ))
+    printf "\033]8;;%s\007%s\033]8;;\007%${pad}s%4s %4s %4s %3s${gitstatus}\n" $gitremote $tap "" $dsize $brews $casks $cmnds
+  } always {
+    exec {brews_fd}>&-
+    exec {casks_fd}>&-
+    exec {cmnds_fd}>&-
+    exec {dsize_fd}>&-
+    exec {gmain_fd}>&-
+    exec {brnch_fd}>&-
+    exec {dirty_fd}>&-
+  }
+}
+
+HOMEBREW_TAPS=${HOMEBREW_LIBRARY-/opt/homebrew/Library}/Taps
+taps=( `find ${HOMEBREW_TAPS} -type d -depth 2 | sort` )
+name_width=13
+padding=${HOMEBREW_TAPS}/homebrew-
+padding=${#padding}
+for x in $taps; do
+  w=$(( ${#x} - padding ))
+  name_width=$(( w > name_width ? w : name_width ))
+done
+
+typeset -a fds
+
+for x in $taps; do
+  exec {fd} < <( tap_status $x )
+  fds+=($fd)
+done
+
+printf "\e[1m%-${name_width}s Size   🍺   🍷 Cmd\e[0m\n" Tap
+
+for fd in $fds; do
+  while read line <&$fd; do
+    echo $line
+  done
+  exec {fd}>&-
+done
