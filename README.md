@@ -40,7 +40,7 @@ I was unhappy with how the official Homebrew versions of these packages worked. 
 ### New Formulae
 Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-core/) yet. I'm usually pretty quick to get new versions here when they are released, but if you are using one of these formulae and find it out of date PRs are welcome. I will remove formulae here if/when they are upstreamed to homebrew/core.
 
-_None currently_
+- `curl-completion`: curl completion for `zsh` (and `fish`). Missing from macOS base install due to Apple packaging in poorly.
 
 ### How do I install these formulae?
 
