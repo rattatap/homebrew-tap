@@ -1,0 +1,41 @@
+#!/usr/bin/env -S zsh --no-rcs
+#:  * `vers` [*formula* ...]
+#:
+#:Show all available and installed versions of *formula*.
+
+vers() {
+  setopt ERR_RETURN PIPE_FAIL
+  brew info -j $1 | jq -r '.[] |'\
+'"\(.name) \(.versions.stable)'\
+'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
+'\([.installed[].version] | if length > 0 then " (Installed: \(.|join(", ")))" else "" end )"'
+}
+
+if (( ! #argv )); then
+  brew vers -h
+  exit 1
+fi
+
+while (( #argv )); do
+  formula=$1
+
+  () {
+    emulate -L zsh
+    setopt ERR_EXIT
+    vers $formula
+  }
+
+  fds=()
+  for f in $(brew info --json $formula | jq -r '.[].versioned_formulae[]' | sort -Vr); do
+    exec {fd} < <(vers $f)
+    fds+=($fd)
+  done
+
+  for fd in $fds; do
+    read -u $fd str
+    exec {fd}>&-
+    echo $str
+  done
+
+  shift
+done
