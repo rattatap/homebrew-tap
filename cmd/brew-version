@@ -1,5 +1,5 @@
 #!/usr/bin/env -S zsh --no-rcs
-#:  * `vers` [*formula* ...]
+#:  * `version` [*formula* ...]
 #:
 #:Show all available and installed versions of *formula*.
 
@@ -12,7 +12,7 @@ vers() {
 }
 
 if (( ! #argv )); then
-  brew vers -h
+  brew version -h
   exit 1
 fi
 
