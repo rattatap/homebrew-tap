@@ -41,6 +41,9 @@ homebrew/core    678M 7086    0   3
 rattatap/tap     164K    3    0   2 (wip)
 ```
 
+### `brew what`
+List binaries installed by formulae.
+
 ## Formulae
 
 ### Patched Formulae

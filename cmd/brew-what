@@ -1,0 +1,22 @@
+#!/bin/sh
+#:  * `what` [*formula* ...]
+#:
+#:List binaries installed by *formula*. Only works for formulae in homebrew/core.
+
+API_FILE="${HOMEBREW_CACHE}/api/internal/executables.txt"
+
+if [ ! -f "$API_FILE" ]; then
+  # perform a useless search to force brew to download the API for us
+  brew which-formula downloadthedata > /dev/null 2>&1 || true
+fi
+
+if [ ! -f "$API_FILE" ]; then
+  echo "data file missing: $API_FILE"
+  echo
+  echo "I give up, sorry."
+  exit 1
+fi
+
+for x in $@; do
+  egrep "^$x\(" "$API_FILE" | sed -e 's/^.*://' -e 's/ /\n/g'
+done
