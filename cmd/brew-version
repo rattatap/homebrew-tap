@@ -1,41 +1,37 @@
-#!/usr/bin/env -S zsh --no-rcs
-#:  * `version` [*formula* ...]
+#!/bin/sh
+#:  * `version` *formula* [...]
 #:
 #:Show all available and installed versions of *formula*.
 
-vers() {
-  setopt ERR_RETURN PIPE_FAIL
-  brew info -j $1 | jq -r '.[] |'\
-'"\(.name) \(.versions.stable)'\
-'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
-'\([.installed[].version] | if length > 0 then " (Installed: \(.|join(", ")))" else "" end )"'
-}
+set -fue
 
-if (( ! #argv )); then
+if [ -z "$*" ]; then
   brew version -h
   exit 1
 fi
 
-while (( #argv )); do
-  formula=$1
+JQ_INFO='.[] |'\
+'"\(.name) \(.versions.stable)'\
+'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
+'\([.installed[].version] | if length > 0 then " (Installed: \(join(", ")))" else "" end )
+\(.versioned_formulae | join(" "))"'
 
-  () {
-    emulate -L zsh
-    setopt ERR_EXIT
-    vers $formula
-  }
+JQ_INFO_SHORT='.[] |'\
+'"\(.name) \(.versions.stable)'\
+'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
+'\([.installed[].version] | if length > 0 then " (Installed: \(join(", ")))" else "" end )"'
 
-  fds=()
-  for f in $(brew info --json $formula | jq -r '.[].versioned_formulae[]' | sort -Vr); do
-    exec {fd} < <(vers $f)
-    fds+=($fd)
-  done
+PRINT=1
 
-  for fd in $fds; do
-    read -u $fd str
-    exec {fd}>&-
-    echo $str
-  done
-
-  shift
+brew info -j "$@" | jq -r "$JQ_INFO" | while read -r p
+do
+  if [ -n "$PRINT" ]; then
+    echo "$p"
+    PRINT=
+  else
+    if [ -n "$p" ]; then
+      brew info -j $p | jq -r "$JQ_INFO_SHORT"
+    fi
+    PRINT=1
+  fi
 done

@@ -44,6 +44,9 @@ rattatap/tap     164K    3    0   2 (wip)
 ### `brew what`
 List binaries installed by formulae.
 
+### `brew version`
+List every version of a formula available or installed.
+
 ## Formulae
 
 ### Patched Formulae
