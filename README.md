@@ -44,14 +44,15 @@ rattatap/tap     164K    3    0   2 (wip)
 ## Formulae
 
 ### Patched Formulae
-I was unhappy with how the official Homebrew versions of these packages worked. These formulae are hacks that load their data from official formulae and then customize some element of the build or installation. Because the soruce links come from the official formulae they will always install current versions, but they could concievably break if there are major changes to how these packages are installed.
+I was unhappy with how the official Homebrew versions of these packages worked. These formulae are hacks that load their data from official formulae and then customize some element of the build or installation. Because the source links come from the official formulae they will always install current versions, but they could concievably break if there are major changes to how these packages are installed.
 
 - `bind-dnstools`: Patched version of [homebrew/core/bind](https://github.com/Homebrew/homebrew-core/blob/master/Formula/b/bind.rb). Just `delv`, `dig`, `host`. Removes server binaries, server only utils, libs, and dependencies.
 - `fwknop-client`: Patched version of [homebrew/core/fwknop](https://github.com/Homebrew/homebrew-core/blob/master/Formula/f/fwknop.rb). Removes gpg dependencies, server binary.
 
-### New Formulae
-Formulae that aren't in [homebrew/core](https://github.com/homebrew/homebrew-core/) yet. I'm usually pretty quick to get new versions here when they are released, but if you are using one of these formulae and find it out of date PRs are welcome. I will remove formulae here if/when they are upstreamed to homebrew/core.
+### Symlink Formulae
+These formulae simply install symlinks to other binaries. See directory listing in `/Formula/symlink`. Where possible, formulae names match Debian packages with roughly equivalent functionality (100% as of this writing).
 
+### New Formulae
 - `curl-completion`: curl completion for `zsh` (and `fish`). Missing from macOS base install due to Apple packaging curl poorly.
 
 ### How do I install these formulae?

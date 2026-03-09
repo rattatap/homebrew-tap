@@ -4,7 +4,7 @@
 #:Print table of installed taps and tap details.
 #:  
 #:  Tap details:
-#:    Tap: cannonical name of tap
+#:    Tap: canonical name of tap
 #:    Size: output of du -sh for tap path
 #:    🍺: Number of formulae available from tap
 #:    🍷: Number of casks available from tap
