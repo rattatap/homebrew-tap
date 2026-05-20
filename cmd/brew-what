@@ -1,22 +1,65 @@
-#!/bin/sh
-#:  * `what` [*formula* ...]
+#!/bin/bash
+#:  * `what` [-d] [-1] [*formula* ...]
 #:
 #:List binaries installed by *formula*. Only works for formulae in homebrew/core.
+#:
+#:    -1                               Single column output
+#:    -d, --debug
 
-API_FILE="${HOMEBREW_CACHE}/api/internal/executables.txt"
+# patch environment so executables.sh uses the correct syntax for `stat`
+[[ "$MACHTYPE" = *darwin* ]] && HOMEBREW_MACOS=1
 
-if [ ! -f "$API_FILE" ]; then
-  # perform a useless search to force brew to download the API for us
-  brew which-formula downloadthedata > /dev/null 2>&1 || true
+source "${HOMEBREW_LIBRARY}/Homebrew/utils/executables.sh"
+
+COL_ARGS=
+
+while [[ "$1" = -* ]]; do
+  case "$1" in
+    -1)
+      COL_ARGS="-c1"
+      shift
+      ;;
+    --debug|-d)
+      HOMEBREW_DEBUG=1
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+ensure_executables_file
+
+API_FILE="$(executables_txt_cache_file)"
+[[ -n "$HOMEBREW_DEBUG" ]] && echo "$API_FILE" >&2
+
+if [[ "$#" -gt 1 ]]; then
+  echo "$1:"
 fi
 
-if [ ! -f "$API_FILE" ]; then
-  echo "data file missing: $API_FILE"
-  echo
-  echo "I give up, sorry."
-  exit 1
-fi
+while [[ "$#" -gt 0 ]]; do
+  grep "^$1[:(]" "$API_FILE" | sed -e 's/^.*://' -e 's/ /\n/g' | column $COL_ARGS
+  if [[ "$#" -gt 1 ]]; then
+    echo
+    echo "$2:"
+  fi
+  shift
+done
 
 for x in $@; do
-  egrep "^$x\(" "$API_FILE" | sed -e 's/^.*://' -e 's/ /\n/g'
+  # Handle both versions of the api I've seen. The "old" version is currently
+  # doucumented in comments in executables.sh, so not clear whether is obsolete
+  # or if the change was a bug and the old version may return.
+  #
+  # old API:
+  #   formula(version):list of bins
+  # new API:
+  #   formula:list of bins
+  grep "^$x[:(]" "$API_FILE" | sed -e 's/^.*://' -e 's/ /\n/g' | column $COL_ARGS
 done
