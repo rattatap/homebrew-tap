@@ -10,27 +10,51 @@ if [ -z "$*" ]; then
   exit 1
 fi
 
-JQ_INFO='.[] |'\
-'"\(.name) \(.versions.stable)'\
-'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
-'\([.installed[].version] | if length > 0 then " (Installed: \(join(", ")))" else "" end )
-\(.versioned_formulae | join(" "))"'
+JQ_NFO='.[] |
+{
+  name:             .name,
+  version:          .versions.stable,
+  versioned:        (.versioned_formulae | length) > 0,
+  installed:        [.installed[].version],
+  other_versions_s: "\n\(.versioned_formulae | join(" "))",
+  disabled_s: "\(
+    if .disabled then
+      " [Disabled]"
+    elif .deprecated then
+      " [Deprecated]"
+    else
+      ""
+    end
+  )",
+} |
+.installed_s = "\(
+  if (.installed | length == 1) and .installed[0] == .version then
+    " (Installed)"
+  elif (.installed | length) > 0 then
+    " (Installed: \(.installed | join(",")))"
+  else
+    ""
+  end
+)"'
 
-JQ_INFO_SHORT='.[] |'\
-'"\(.name) \(.versions.stable)'\
-'\(if .disabled then " [Disabled]" else if .deprecated then " [Deprecated]" else "" end end)'\
-'\([.installed[].version] | if length > 0 then " (Installed: \(join(", ")))" else "" end )"'
+# check if formula is linked, print appropriate text
+link_flag (){
+  [ -h "$HOMEBREW_PREFIX/var/homebrew/linked/${1}" ] && echo " [Linked]"
+}
 
 PRINT=1
 
-brew info -j "$@" | jq -r "$JQ_INFO" | while read -r p
+brew info -j "$@" | jq -r "$JQ_NFO"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)\(if .versioned then .other_versions_s else "" end)"' | while read -r p
 do
   if [ -n "$PRINT" ]; then
-    echo "$p"
+    echo "${p}$(link_flag "${p%% *}")"
     PRINT=
   else
     if [ -n "$p" ]; then
-      brew info -j $p | jq -r "$JQ_INFO_SHORT"
+      brew info -j $p | jq -r "$JQ_NFO"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)"' | while read -r p
+      do
+        echo "${p}$(link_flag "${p%% *}")"
+      done
     fi
     PRINT=1
   fi
