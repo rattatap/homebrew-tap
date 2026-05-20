@@ -1,22 +1,21 @@
 #!/bin/sh
-#:  * `version` *formula* [...]
+#:  * `version` [--all] *formula* [...]
 #:
 #:Show all available and installed versions of *formula*.
+#:
+#:    -a, --all                        List disabled versioned formulae
+#:    -i, --installed                  List all installed formulae
 
 set -fue
-
-if [ -z "$*" ]; then
-  brew version -h
-  exit 1
-fi
 
 JQ_NFO='.[] |
 {
   name:             .name,
   version:          .versions.stable,
+  disabled:         .disabled,
   versioned:        (.versioned_formulae | length) > 0,
   installed:        [.installed[].version],
-  other_versions_s: "\n\(.versioned_formulae | join(" "))",
+  other_versions_s: "\(.versioned_formulae | join(" "))",
   disabled_s: "\(
     if .disabled then
       " [Disabled]"
@@ -27,6 +26,7 @@ JQ_NFO='.[] |
     end
   )",
 } |
+.show = (.disabled | not) or (.installed | length > 0) |
 .installed_s = "\(
   if (.installed | length == 1) and .installed[0] == .version then
     " (Installed)"
@@ -42,16 +42,62 @@ link_flag (){
   [ -h "$HOMEBREW_PREFIX/var/homebrew/linked/${1}" ] && echo " [Linked]"
 }
 
+JQ_FILTER="| select(.show)"
+ALL_INSTALLED=
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  -a|--all)
+    JQ_FILTER=
+    shift
+    ;;
+  -i|--installed)
+    ALL_INSTALLED=1
+    shift
+    ;;
+  --)
+    shift
+    break
+    ;;
+  -*)
+    echo "Unknown option: $1" >&2
+    exit 1
+    ;;
+  *)
+    break
+    ;;
+  esac
+done
+
+# list all installed formulae
+if [ -n "$ALL_INSTALLED" ]; then
+  if [ -n "$*" ]; then
+    echo "brew version: --installed does not accept other flags or arguments" >&2
+    exit 1
+  fi
+
+  brew info --formula --json --installed | jq -r "${JQ_NFO}"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)"' | while read -r p
+  do
+    echo "${p}$(link_flag "${p%% *}")"
+  done
+  exit
+fi
+
+if [ -z "$*" ]; then
+  echo "brew version: at least one argument required\n" >&2
+  brew version -h
+  exit 1
+fi
+
 PRINT=1
 
-brew info -j "$@" | jq -r "$JQ_NFO"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)\(if .versioned then .other_versions_s else "" end)"' | while read -r p
+brew info --formula --json -- "$@" | jq -r "$JQ_NFO"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)\n\(if .versioned then .other_versions_s else "" end)"' | while read -r p
 do
   if [ -n "$PRINT" ]; then
     echo "${p}$(link_flag "${p%% *}")"
     PRINT=
   else
     if [ -n "$p" ]; then
-      brew info -j $p | jq -r "$JQ_NFO"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)"' | while read -r p
+      brew info --formula --json -- $p | jq -r "${JQ_NFO}${JQ_FILTER}"'| "\(.name) \(.version)\(.installed_s)\(.disabled_s)"' | while read -r p
       do
         echo "${p}$(link_flag "${p%% *}")"
       done
